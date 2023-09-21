@@ -1,0 +1,82 @@
+﻿@model IEnumerable<Banhangonline.Models.ApplicationUser>
+@{
+    ViewBag.Title = "Quản Lí Tài Khoản";
+}
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>Danh Sách Tài Khoản</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Home</a></li>
+                    <li class="breadcrumb-item active">@ViewBag.Title</li>
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+<section class="content">
+
+    <!-- Default box -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Danh Sách Tài Khoản</h3>
+
+            <div class="card-tools">
+                <a href="/admin/Account/add" class="btn btn-primary">Thêm mới</a>
+
+            </div>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Tài Khoản</th>
+                        <th>Họ Tên</th>
+                        <th>Email</th>
+                        <th>Ngày Tạo</th>
+                        <th>Quyền</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null)
+                    {
+                        var i = 1;
+                        foreach (var item in Model)
+                        {
+
+                            <tr>
+                                <td>@i</td>
+                                <td>@item.UserName</td>
+                                <td>@item.FullName</td>
+                                <td>@item.Email</td>
+                                <th></th>
+                                <th></th>
+                                <td>
+                                    <a href="/admin/Products/edit/@item.UserName" class="btn btn-sm btn-primary">sửa</a>
+                                    <a href="#" data-user="@item.UserName" class="btn btn-sm btn-danger btnDelete">Xóa</a>
+                                </td>
+                            </tr>
+                            i++;
+                        }
+                    }
+
+                </tbody>
+            </table>
+
+
+        </div>
+        <!-- /.card-body -->
+        <div class="card-footer">
+
+        </div>
+        <!-- /.card-footer-->
+    </div>
+    <!-- /.card -->
+
+</section>
+

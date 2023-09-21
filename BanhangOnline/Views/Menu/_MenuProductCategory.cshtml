@@ -1,0 +1,46 @@
+﻿@model IEnumerable<BanhangOnline.Models.EF.ProductCategory>
+@if (Model != null && Model.Any())
+{<!-- Banner -->
+
+   
+    {
+        <div class="banner">
+            <div class="container">
+                <div class="row">
+                    @foreach (var item in Model)
+                    {
+                        <div class="col-md-4">
+                            <div class="banner_item align-items-center" style="background-image: url(@item.Icon)">
+                                <div class="banner_category">
+                                    <a href="@item.Alias">@item.Title</a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    @*<div class="col-md-4">
+                        <div class="banner_item align-items-center" style="background-image: url(Content/assets/images/banner_2.jpg) ">
+                            <div class="banner_category">
+                                <a href="categories.html">accessories's</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="banner_item align-items-center" style="background-image: url(Content/assets/images/banner_3.jpg) ">
+                            <div class="banner_category">
+                                <a href="categories.html">men's</a>
+                            </div>
+                        </div>
+                    </div>*@
+                </div>
+            </div>
+        </div>
+    }
+
+    @*<li><a href="#">shop</a></li>
+        <li><a href="#">promotion</a></li>
+        <li><a href="#">pages</a></li>
+        <li><a href="#">blog</a></li>
+        <li><a href="contact.html">contact</a></li>*@
+
+}

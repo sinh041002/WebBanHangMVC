@@ -1,0 +1,193 @@
+﻿@model IEnumerable<BanhangOnline.Models.EF.ProductImage>
+@{
+    ViewBag.Title = "Quản lý ảnh sản phẩm";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutEmpty.cshtml";
+
+
+}
+<style>
+    .glImage {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+   
+    }
+    .glImage li{
+        align-items:center;
+    }
+    .btn-a  {
+        align-items: center;
+        margin-left: 69px;
+        margin-top: 20px;
+    }
+    .btn-b {
+        align-items: center;
+       
+        margin-top: 20px;
+    }
+   
+</style>
+<section class="content">
+    <div class="card">
+
+        <div class="card-header">
+            <h3 class="card-title">Danh sách Bài viết</h3>
+
+            <div class="card-tools">
+              
+                <input type="button" value="Tải ảnh" class="btn btn-primary" onclick="BrowseSever('txtimage');" />
+                <a href="#" class="btn btn-danger" id="btnDeleteAll">Xóa</a>
+            </div>
+        </div>
+        <div class="card-body">
+            <ul class="glImage">
+                @if (Model != null) { 
+                    foreach(var item in Model)
+                {
+                        <li id="trow_@item.Id">
+                            <img src="@item.Image" width="200"/>
+                            <div class="box-btn">
+                                <a href="#" data-id="@item.Id" class="btnDelete btn btn-danger btn-sm btn-a btn-b"><i class="fa fa-trash"></i></a>
+                                <a href="#" data-id="@item.Id" class="btnDefault btn btn-success btn-sm btn-b"><i class="fa fa-check"> </i></a>
+                            </div>
+                        </li>
+                }
+                }
+            </ul>
+        </div>
+    </div>
+   
+
+</section>
+<script>
+    function BrowseSever(field) {
+        var finder = new CKFinder();
+        finder.selectActionFunction = function (fileUrl) {
+            AddImage(@ViewBag.ProductId, fileUrl)
+        }
+        finder.popup();
+    };
+    function AddImage(id, url) {
+        debugger;
+        $.ajax({
+            
+            url: '/admin/ProductImage/AddImage',
+            type: 'POST',
+            data: { productId: id, imageUrl:url },
+            success: function (rs) {
+                if (rs.success) {
+                    window.location.reload()
+                }
+            }
+        });
+    }
+        $(document).ready(function () {
+            $('body').on('click', '#selectAll', function () {
+
+                var checkStatus = this.checked;
+
+                var checkbox1 = $(this).parents('.card-body').find('tr td input:checkbox');
+
+                checkbox1.each(function () {
+                    this.checked = checkStatus;
+                    if (this.checked) {
+                        checkbox1.attr('selected', 'checked');
+                    } else {
+                        checkbox1.attr('selected', '');
+                    }
+                })
+
+            });
+            $('body').on('click', '.btnDelete', function () {
+                var id = $(this).data("id");
+            
+                var conf = confirm('ban co muon xoa di ảnh này')
+                if (conf == true) {
+                    $.ajax({
+                        url: '/admin/ProductImage/delete',
+                        type: 'POST',
+                        data: { id: id },
+                        success: function (rs) {
+                            if (rs.success) {
+                                $('#trow_' + id).remove();
+                            }
+                        }
+                    })
+                }
+            });
+            $('body').on('click', '#btnDeleteAll', function (e) {
+                e.preventDefault();
+
+
+                var a = [];
+
+                var checkbox1 = $(this).parents('.card').find('tr td input:checkbox');
+
+                checkbox1.each(function () {
+
+
+                    if (this.checked) {
+
+
+                        var _id = $(this).val();
+
+                        a.push($(this).val())
+                    } else {
+                        checkbox1.attr('selected', '');
+                    }
+
+                });
+
+
+                for (let dem = 0; dem < a.length; dem++ )
+                {
+
+
+                        $.ajax({
+                            url: '/admin/ProductImage/delete',
+                            type: 'POST',
+                            data: { id: a[dem] },
+                            success: function (rs) {
+                                if (rs.success) {
+                                    $('#trow_' + a[dem]).remove();
+                                }
+                            }
+                        });
+
+
+                 }
+
+
+            });
+            $('body').on('click', '.btnActive', function (e) {
+                e.preventDefault();
+                var btn = $(this);
+                var id = $(this).data("id");
+
+                    {
+                    $.ajax({
+                        url: '/admin/ProductImage/IsActive',
+                        type: 'post',
+                        data: { id: id },
+                        success: function (rs)
+                        {
+
+                            if (rs.success) {
+                                if (rs.isAcive == true) {
+                                    btn.html("<i class='fa fa-check text-success'></i> ")
+                                } else {
+                                    btn.html("<i class='fas fa-times text-danger'></i> ")
+                                }
+                            }
+                        }
+
+
+                    })
+                }
+            });
+
+        });
+    
+</script>
+

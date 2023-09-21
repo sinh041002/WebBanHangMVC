@@ -1,0 +1,27 @@
+﻿@model IEnumerable<BanhangOnline.Models.ShoppingCartItems>
+ @if (Model != null && Model.Any())
+ {      <h3>Thanh Toán<span style="float:right">@Model.Count()</span></h3>
+         var i = 0;
+        var tongtien = decimal.Zero;
+    <table class="table">
+
+        @foreach (var item in Model)
+        {
+
+            <tr>
+                <td>@item.ProductName</td>
+                <td>@item.Price</td>
+            </tr>
+            i++;
+            tongtien += item.TotalPrice;
+        }
+        <tr>
+            <td>Tổng Tiền</td>
+            <td>@tongtien</td>
+        </tr>
+        
+        </table>
+ }
+
+
+

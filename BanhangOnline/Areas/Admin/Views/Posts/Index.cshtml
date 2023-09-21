@@ -1,0 +1,220 @@
+﻿@model IEnumerable<BanhangOnline.Models.EF.Posts>
+
+@{
+    ViewBag.Title = "Danh sách bài viết ";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+@section naviheader{
+    <!-- Left navbar links -->
+    <ul class="navbar-nav">
+        <li class="nav-item">
+            <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+        </li>
+        <li class="nav-item d-none d-sm-inline-block">
+            <a href="/admin/home" class="nav-link">Home</a>
+        </li>
+        <li class="nav-item d-none d-sm-inline-block">
+            <a href="/admin/Posts" class="nav-link">Bài Viết</a>
+        </li>
+    </ul>}
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>Danh Sách Bài viết</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Home</a></li>
+                    <li class="breadcrumb-item active">Bài viết</li>
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<!-- Main content -->
+<section class="content">
+
+    <!-- Default box -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Danh sách Bài viết</h3>
+
+            <div class="card-tools">
+                <a href="/admin/posts/add" class="btn btn-primary">Thêm Mới</a>
+                <a href="#" class="btn btn-danger" id="btnDeleteAll">Xóa</a>
+            </div>
+        </div>
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Tiêu đề </th>
+                        <th>Hình ảnh </th>
+                        <th>Ngày tạo </th>
+                        <th>Trạng thái  </th>
+                        <th>Thứ tự</th>
+                        <th><input type="checkbox" id="selectAll" /></th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+
+
+                    @if (Model != null && Model.Any())
+                    {
+                        var i = 1;
+                        foreach (var items in Model)
+                        {
+                            var checkIsActive = items.IsActive ? "<i class='fa fa-check text-success'></i> " : "<i class='fas fa-times text-danger'></i> ";
+                            <tr id="trow_@items.Id">
+                                <td>@i</td>
+                                <td>@items.Title</td>
+                                <td><img src="@items.Image" width="50" /></td>
+                                <td>@items.CreatedDate.ToString("dd/MM/yyyy")</td>
+                                <td><a href='#' data-id="@items.Id" class="btnActive">@Html.Raw(checkIsActive)</a> </td>
+                                <td>
+                                    <a href="/admin/Posts/edit/@items.Id" class="btn btn-sm btn-primary">sửa</a>
+                                    <a href="#" data-id="@items.Id" class="btn btn-sm btn-danger btnDelete">Xóa</a>
+                                </td>
+                                <td><input type="checkbox" value="@items.Id" /></td>
+                            </tr>
+                            i++;
+                        }
+
+                    }
+                    else
+                    {
+                        <tr>
+                            <th>Không có bản ghi nào</th>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+        </div>
+        <!-- /.card-body -->
+        <div class="card-footer">
+
+        </div>
+        <!-- /.card-footer-->
+    </div>
+    <!-- /.card -->
+
+</section>
+<!-- /.content -->
+@section scripts{
+    <script>
+        $(document).ready(function () {
+            $('body').on('click', '#selectAll', function () {
+
+                var checkStatus = this.checked;
+
+                var checkbox1 = $(this).parents('.card-body').find('tr td input:checkbox');
+
+                checkbox1.each(function () {
+                    this.checked = checkStatus;
+                    if (this.checked) {
+                        checkbox1.attr('selected', 'checked');
+                    } else {
+                        checkbox1.attr('selected', '');
+                    }
+                })
+
+            });
+            $('body').on('click', '.btnDelete', function () {
+                var id = $(this).data("id");
+                alert(id);
+                var conf = confirm('ban co muon xoa di dong nay')
+                if (conf == true) {
+                    $.ajax({
+                        url: '/admin/posts/delete',
+                        type: 'POST',
+                        data: { id: id },
+                        success: function (rs) {
+                            if (rs.success) {
+                                $('#trow_' + id).remove();
+                            }
+                        }
+                    })
+                }
+            });
+            $('body').on('click', '#btnDeleteAll', function (e) {
+                e.preventDefault();
+
+
+                var a = [];
+
+                var checkbox1 = $(this).parents('.card').find('tr td input:checkbox');
+
+                checkbox1.each(function () {
+
+
+                    if (this.checked) {
+
+
+                        var _id = $(this).val();
+
+                        a.push($(this).val())
+                    } else {
+                        checkbox1.attr('selected', '');
+                    }
+
+                });
+
+
+                for (let dem = 0; dem < a.length; dem++ )
+                {
+
+
+                        $.ajax({
+                            url: '/admin/posts/delete',
+                            type: 'POST',
+                            data: { id: a[dem] },
+                            success: function (rs) {
+                                if (rs.success) {
+                                    $('#trow_' + a[dem]).remove();
+                                }
+                            }
+                        });
+
+
+                 }
+
+
+            });
+            $('body').on('click', '.btnActive', function (e) {
+                e.preventDefault();
+                var btn = $(this);
+                var id = $(this).data("id");
+
+                    {
+                    $.ajax({
+                        url: '/admin/posts/IsActive',
+                        type: 'post',
+                        data: { id: id },
+                        success: function (rs)
+                        {
+
+                            if (rs.success) {
+                                if (rs.isAcive == true) {
+                                    btn.html("<i class='fa fa-check text-success'></i> ")
+                                } else {
+                                    btn.html("<i class='fas fa-times text-danger'></i> ")
+                                }
+                            }
+                        }
+
+
+                    })
+                }
+            });
+
+        });
+    </script>
+
+
+}

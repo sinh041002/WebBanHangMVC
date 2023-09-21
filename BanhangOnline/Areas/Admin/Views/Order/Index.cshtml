@@ -1,0 +1,289 @@
+﻿@model PagedList.IPagedList< BanhangOnline.Models.EF.Order >
+@using PagedList;
+@using PagedList.Mvc;
+@{
+    ViewBag.Title = "Danh sách Đơn Hàng ";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+@section naviheader{
+    <!-- Left navbar links -->
+    <ul class="navbar-nav">
+        <li class="nav-item">
+            <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+        </li>
+        <li class="nav-item d-none d-sm-inline-block">
+            <a href="/admin/home" class="nav-link">Home</a>
+        </li>
+        <li class="nav-item d-none d-sm-inline-block">
+            <a href="/admin/Order" class="nav-link">Đơn Hàng</a>
+        </li>
+    </ul>}
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>Danh Sách Đơn Hàng</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Home</a></li>
+                    <li class="breadcrumb-item active">Đơn Hàng</li>
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<!-- Main content -->
+<section class="content">
+
+    <!-- Default box -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Danh sách Đơn Hàng</h3>
+
+            <div class="card-tools">
+
+            </div>
+        </div>
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Mã Đơn Hàng </th>
+                        <th>Tên Khách Hàng </th>
+                        <th>Ngày tạo </th>
+                        <th>Phone  </th>
+                        <th>Tổng Tiền</th>
+
+                        <th>Trạng Thái</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+
+
+                    @if (Model != null && Model.Any())
+                    {
+                        var i = ((ViewBag.Page - 1) * (ViewBag.PageSize)) + 1;
+                        foreach (var items in Model)
+                        {
+                            //var checkIsActive = items.IsActive ? "<i class='fa fa-check text-success'></i> " : "<i class='fas fa-times text-danger'></i> ";
+                            <tr id="trow_@items.Id">
+                                <td>@i</td>
+                                <td>@items.Code</td>
+                                <td>@items.CustomerName</td>
+                                <td>@items.CreatedDate.ToString("dd/MM/yyyy")</td>
+                                <td>@items.Phone </td>
+                                <td>@items.TotalAmount</td>
+                                <td>@(items.TypePayment==1?"Chờ thanh toán":"Đã Thanh toán") </td>
+                                <td>
+                                    <a href="/admin/order/orderdetail/@items.Id" class="btn btn-sm btn-success"> Xem</a>
+                                    <a href="#" class="btn btn-sm btn-danger btnCapNhat" data-id="@items.Id" > Cập Nhật</a>
+                                </td>
+                            </tr>
+                            i++;
+                        }
+
+                    }
+                    else
+                    {
+                        <tr>
+                            <th>Không có bản ghi nào</th>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <div class="row">
+                <div class="col-6"></div>
+                <div class="col-6">
+                    @Html.PagedListPager(Model, page => Url.Action("Index", new { page }))
+                </div>
+
+            </div>
+        </div>
+        <!-- /.card-body -->
+        <div class="card-footer">
+
+        </div>
+        <!-- /.card-footer-->
+    </div>
+    <!-- /.card -->
+
+</section>
+
+<!-- /.content -->
+<div class="modal fade" id="modal-default">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Cập nhật trạng thái</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body"  >
+                <div id="mydiv" data-myval="10"></div>
+                <input type="hidden" id="txtOrderId" value="0" />
+                <div class="form-group">
+                    <label>Trạng thái</label>
+                    <select class="form-control" id="ddTrangThai">
+                        <option value="2" >Đã Thanh toán</option>
+                        
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" id="btnLuu">Lưu</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+@section scripts{
+    <script>
+        $(document).ready(function () {
+            $('body').on('click', '.btnCapNhat', function () {
+                var id = $(this).data("id");
+                $('#txtOrderId').val(id);
+                $('#modal-default').modal('show');
+            });
+            //$('body').on('click', '.btnCapNhat', function () {
+            //    var id = $(this).data(id);
+               
+            //    alert(id);
+            //   /* document.getElementById('txtOrderId').value = id;*/
+            //    debugger
+            //    $('#modal-default').modal('show');
+
+
+            //});
+            $('body').on('click', '#btnLuu', function () {
+                var id = $('#txtOrderId').val();
+                var tt = $('#ddTrangThai').val();
+                debugger
+                $.ajax({
+                    url: '/admin/order/UpdateTrangthai',
+                    type: 'POST',
+                    data: { id: id, trangthai:tt },
+                    success: function (rs) {
+                        if (rs.success) {
+                           
+                            location.reload();
+                        }
+                    }
+                });
+
+
+            });
+            $('body').on('click', '#selectAll', function () {
+
+                var checkStatus = this.checked;
+
+                var checkbox1 = $(this).parents('.card-body').find('tr td input:checkbox');
+
+                checkbox1.each(function () {
+                    this.checked = checkStatus;
+                    if (this.checked) {
+                        checkbox1.attr('selected', 'checked');
+                    } else {
+                        checkbox1.attr('selected', '');
+                    }
+                })
+
+            });
+            $('body').on('click', '.btnDelete', function () {
+                var id = $(this).data("id");
+                alert(id);
+                var conf = confirm('ban co muon xoa di dong nay')
+                if (conf == true) {
+                    $.ajax({
+                        url: '/admin/posts/delete',
+                        type: 'POST',
+                        data: { id: id },
+                        success: function (rs) {
+                            if (rs.success) {
+                                $('#trow_' + id).remove();
+                            }
+                        }
+                    })
+                }
+            });
+            $('body').on('click', '#btnDeleteAll', function (e) {
+                e.preventDefault();
+
+
+                var a = [];
+
+                var checkbox1 = $(this).parents('.card').find('tr td input:checkbox');
+
+                checkbox1.each(function () {
+
+
+                    if (this.checked) {
+
+
+                        var _id = $(this).val();
+
+                        a.push($(this).val())
+                    } else {
+                        checkbox1.attr('selected', '');
+                    }
+
+                });
+
+
+                for (let dem = 0; dem < a.length; dem++) {
+
+
+                    $.ajax({
+                        url: '/admin/posts/delete',
+                        type: 'POST',
+                        data: { id: a[dem] },
+                        success: function (rs) {
+                            if (rs.success) {
+                                $('#trow_' + a[dem]).remove();
+                            }
+                        }
+                    });
+
+
+                }
+
+
+            });
+            $('body').on('click', '.btnActive', function (e) {
+                e.preventDefault();
+                var btn = $(this);
+                var id = $(this).data("id");
+
+                {
+                    $.ajax({
+                        url: '/admin/posts/IsActive',
+                        type: 'post',
+                        data: { id: id },
+                        success: function (rs) {
+
+                            if (rs.success) {
+                                if (rs.isAcive == true) {
+                                    btn.html("<i class='fa fa-check text-success'></i> ")
+                                } else {
+                                    btn.html("<i class='fas fa-times text-danger'></i> ")
+                                }
+                            }
+                        }
+
+
+                    })
+                }
+            });
+
+        });
+    </script>
+
+
+}
